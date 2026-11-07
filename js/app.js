@@ -64,12 +64,25 @@
   // 避免拖到頁面其他地方時瀏覽器直接開啟檔案
   ['dragover', 'drop'].forEach(ev => window.addEventListener(ev, e => e.preventDefault()));
 
-  /* ---------- 分頁 ---------- */
-  document.querySelectorAll('.tab').forEach(tab => tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => { t.classList.toggle('active', t === tab); t.setAttribute('aria-selected', t === tab); });
-    $('#tab-organize').hidden = tab.dataset.tab !== 'organize';
-    $('#tab-convert').hidden = tab.dataset.tab !== 'convert';
-  }));
+  /* ---------- 入口與分頁（用網址 #home / #organize / #convert 切換，可用上一頁返回） ---------- */
+  const VIEWS = ['home', 'organize', 'convert'];
+  function route() {
+    const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+    document.body.dataset.view = v;
+    $('#view-home').hidden = v !== 'home';
+    $('#tab-organize').hidden = v !== 'organize';
+    $('#tab-convert').hidden = v !== 'convert';
+    document.querySelectorAll('.tab').forEach(t => {
+      const on = t.dataset.tab === v;
+      t.classList.toggle('active', on);
+      if (t.getAttribute('role') === 'tab') t.setAttribute('aria-selected', on);
+      if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
+    });
+    document.title = v === 'organize' ? '自動整理｜檔案整理轉檔' : v === 'convert' ? '轉檔｜檔案整理轉檔' : '檔案整理轉檔';
+    window.scrollTo(0, 0);
+    document.dispatchEvent(new CustomEvent('viewchange', { detail: v }));
+  }
+  window.addEventListener('hashchange', route);
 
   /* =========================================================
    * 自動整理
@@ -211,6 +224,9 @@
   $('#org-folder').addEventListener('change', e => { addOrgFiles([...e.target.files].map(f => ({ file: f, relPath: f.webkitRelativePath || f.name }))); e.target.value = ''; });
   if (!('webkitdirectory' in document.createElement('input')) || /iPhone|iPad|Android/i.test(navigator.userAgent)) $('#org-folder-label').hidden = true;
   setupDrop($('#org-drop'), addOrgFiles);
+  // 首頁的拖曳區：直接打開自動整理
+  setupDrop($('#home-drop'), list => { location.hash = '#organize'; addOrgFiles(list); });
+  $('#home-files').addEventListener('change', e => { const list = [...e.target.files].map(f => ({ file: f, relPath: f.name })); e.target.value = ''; location.hash = '#organize'; addOrgFiles(list); });
 
   $('#btn-clear').addEventListener('click', () => {
     if (!confirm('確定要清除所有檔案嗎？（不會刪除你電腦裡的檔案）')) return;
@@ -436,4 +452,5 @@
   });
 
   onOpChange();
+  route();
 })();

@@ -12,18 +12,61 @@
 <body>
   <header class="top">
     <div class="wrap">
-      <h1><span class="logo" aria-hidden="true">🗂️</span> 檔案整理轉檔</h1>
+      <h1><a href="#home" class="home-link"><span class="logo" aria-hidden="true">🗂️</span> 檔案整理轉檔</a></h1>
       <p class="privacy">🔒 所有處理都在你的裝置上完成，檔案<strong>不會上傳</strong>到任何地方。斷網也能用。</p>
-      <nav class="tabs" role="tablist">
-        <button class="tab active" role="tab" aria-selected="true" data-tab="organize">🗂️ 自動整理</button>
-        <button class="tab" role="tab" aria-selected="false" data-tab="convert">🔄 轉檔</button>
+      <nav class="tabs" role="tablist" id="tool-tabs">
+        <a class="tab" href="#home" data-tab="home">🏠 首頁</a>
+        <a class="tab" href="#organize" role="tab" data-tab="organize">🗂️ 自動整理</a>
+        <a class="tab" href="#convert" role="tab" data-tab="convert">🔄 轉檔</a>
       </nav>
     </div>
   </header>
 
   <main class="wrap">
+    <!-- ================= 入口首頁 ================= -->
+    <section id="view-home" class="home">
+      <div class="hero">
+        <div class="hero-bot" id="hero-bot" aria-hidden="true"></div>
+        <div class="hero-text">
+          <p class="hero-hi">嗨！今天想做什麼？</p>
+          <h2 class="hero-title">一大堆檔案，<br>交給我整理就好</h2>
+          <p class="muted">選一個工具開始，或直接把檔案拖進來。</p>
+        </div>
+      </div>
+
+      <div class="doors">
+        <a class="door door-org" href="#organize" id="go-organize">
+          <span class="door-icon" aria-hidden="true">🗂️</span>
+          <span class="door-name">自動整理</span>
+          <span class="door-desc">依「名字 → 類型 → 日期」自動分資料夾，下載成 ZIP</span>
+          <span class="door-demo" aria-hidden="true">📷📄🎵 <b>➜</b> 📁</span>
+          <span class="door-go">打開工具 →</span>
+        </a>
+        <a class="door door-conv" href="#convert" id="go-convert">
+          <span class="door-icon" aria-hidden="true">🔄</span>
+          <span class="door-name">轉檔</span>
+          <span class="door-desc">圖片換格式、縮小、HEIC 轉 JPG、合併 PDF、Excel ⇄ CSV</span>
+          <span class="door-demo" aria-hidden="true">🖼️ <b>➜</b> ✨ <b>➜</b> 📄</span>
+          <span class="door-go">打開工具 →</span>
+        </a>
+      </div>
+
+      <div class="drop home-drop" id="home-drop" tabindex="0">
+        <p class="drop-title">📥 趕時間？直接把檔案或資料夾拖到這裡</p>
+        <label class="btn">或選擇檔案<input type="file" id="home-files" multiple hidden></label>
+        <p class="muted small">會自動打開「自動整理」</p>
+      </div>
+
+      <ul class="perks">
+        <li><span aria-hidden="true">🔒</span>不會上傳</li>
+        <li><span aria-hidden="true">⚡</span>免安裝、免註冊</li>
+        <li><span aria-hidden="true">📱</span>手機也能用</li>
+        <li><span aria-hidden="true">🤖</span>不會用？點右下角小助手</li>
+      </ul>
+    </section>
+
     <!-- ================= 自動整理 ================= -->
-    <section id="tab-organize" class="panel" role="tabpanel">
+    <section id="tab-organize" class="panel" role="tabpanel" hidden>
       <div class="drop" id="org-drop" tabindex="0">
         <div class="drop-icon" aria-hidden="true"><span>📷</span><span>📄</span><span>🎵</span></div>
         <p class="drop-title">把照片、文件、整個資料夾拖到這裡</p>

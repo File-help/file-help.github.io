@@ -21,6 +21,13 @@
   };
 
   const STEPS = {
+    home: [
+      { art: 'hello', title: '嗨！我是檔案整理小助手', text: '這裡是入口。選一個工具，我就帶你過去！' },
+      { art: 'layers', title: '自動整理', text: '一大堆照片、文件，依名字、類型、日期自動分好資料夾。', target: '#go-organize' },
+      { art: 'convert', title: '轉檔', text: '圖片換格式、縮小、合併成 PDF，或是 Excel 和 CSV 互轉。', target: '#go-convert' },
+      { art: 'drop', title: '趕時間的話', text: '直接把檔案拖到這個框框，我會自動打開「自動整理」。', target: '#home-drop' },
+      { art: 'privacy', title: '放心，不會上傳', text: '所有處理都在你的裝置上完成。想回到這裡，點左上角的標題就可以。' },
+    ],
     organize: [
       { art: 'hello', title: '嗨！我是檔案整理小助手', text: '我來教你怎麼把一大堆檔案自動分好資料夾，只要 5 步就好！' },
       { art: 'privacy', title: '放心，不會上傳', text: '所有整理和轉檔都在你的電腦或手機裡完成，檔案不會離開你的裝置。' },
@@ -43,7 +50,7 @@
   const bubble = $('#guide-bubble');
   let steps = [], idx = 0, focused = null;
 
-  const currentTab = () => ($('#tab-convert').hidden ? 'organize' : 'convert');
+  const currentTab = () => document.body.dataset.view || 'home';
   const visible = el => !!el && el.offsetParent !== null;
 
   function clearFocus() {
@@ -107,5 +114,8 @@
     else if (e.key === 'ArrowLeft' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)) show(idx - 1);
   });
   // 切換分頁時，說明內容跟著換
-  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => { if (!bubble.hidden) open(); }));
+  document.addEventListener('viewchange', () => { if (!bubble.hidden) open(); });
+  // 首頁放一隻大的小助手（複製右下角的圖）
+  const hero = $('#hero-bot');
+  if (hero) hero.appendChild(bot.querySelector('svg').cloneNode(true));
 })();

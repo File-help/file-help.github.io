@@ -217,6 +217,54 @@ table.files { width: 100%; border-collapse: collapse; font-size: .875rem; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 footer { padding: 8px 16px 24px; }
 
+/* ===== 入口首頁 ===== */
+.home-link { color: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+.home-link:hover .logo { transform: rotate(-8deg) scale(1.05); }
+.logo { transition: transform .2s; }
+.tab { text-decoration: none; }
+.hero { display: flex; align-items: center; gap: 24px; margin: 8px 0 22px; }
+.hero-bot { flex: 0 0 auto; width: 150px; filter: drop-shadow(0 10px 18px rgba(111, 95, 230, .3)); }
+.hero-bot svg { width: 100%; height: auto; display: block; animation: bob 3s ease-in-out infinite; }
+.hero-hi {
+  display: inline-block; margin: 0 0 8px; padding: 6px 16px; border-radius: 18px 18px 18px 4px;
+  background: var(--card); box-shadow: var(--shadow); font-weight: 700; color: var(--accent-dark);
+}
+.hero-title { font-size: 2rem; line-height: 1.3; margin: 0 0 6px; }
+.hero-text p { margin-top: 0; }
+
+.doors { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-bottom: 18px; }
+.door {
+  display: flex; flex-direction: column; gap: 6px; padding: 24px; border-radius: 30px; text-decoration: none; color: var(--text);
+  background: var(--card); border: 2px solid var(--line); box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.door:hover, .door:focus-visible { transform: translateY(-5px); box-shadow: var(--shadow-lg); outline: none; }
+.door-org:hover, .door-org:focus-visible { border-color: var(--accent); }
+.door-conv:hover, .door-conv:focus-visible { border-color: var(--pink); }
+.door-icon { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 20px; font-size: 2rem; }
+.door-org .door-icon { background: var(--accent-soft); }
+.door-conv .door-icon { background: var(--pink-soft); }
+.door-name { font-size: 1.35rem; font-weight: 800; margin-top: 4px; }
+.door-desc { color: var(--muted); font-size: .92rem; }
+.door-demo { font-size: 1.4rem; letter-spacing: 2px; margin: 6px 0; padding: 8px 14px; border-radius: 16px; background: var(--bg); align-self: flex-start; }
+.door-demo b { color: var(--accent); font-size: 1rem; }
+.door-go {
+  align-self: flex-start; margin-top: auto; padding: 8px 20px; border-radius: 999px; font-weight: 800; color: #fff;
+  background: var(--accent); box-shadow: 0 4px 14px rgba(139, 124, 246, .35); transition: transform .2s;
+}
+.door-conv .door-go { background: var(--pink); box-shadow: 0 4px 14px rgba(255, 143, 177, .4); }
+.door:hover .door-go { transform: translateX(4px); }
+.home-drop { padding: 22px 16px; }
+.home-drop .btn { margin: 6px 0; }
+.perks { list-style: none; padding: 0; margin: 0 0 18px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.perks li { background: var(--card); border-radius: 999px; padding: 7px 16px; box-shadow: var(--shadow); font-size: .9rem; font-weight: 700; display: flex; gap: 6px; }
+@media (max-width: 600px) {
+  .hero { gap: 12px; }
+  .hero-bot { width: 92px; }
+  .hero-title { font-size: 1.4rem; }
+  .doors { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .door { padding: 18px; }
+}
+
 /* ===== 小幫手機器人 ===== */
 .guide { position: fixed; right: 16px; bottom: 16px; z-index: 20; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; pointer-events: none; }
 .guide > * { pointer-events: auto; }
