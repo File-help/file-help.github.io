@@ -105,20 +105,21 @@
   ['dragover', 'drop'].forEach(ev => window.addEventListener(ev, e => e.preventDefault()));
 
   /* ---------- 入口與分頁（用網址 #home / #organize / #convert 切換，可用上一頁返回） ---------- */
-  const VIEWS = ['home', 'organize', 'convert'];
+  const VIEWS = ['home', 'organize', 'convert', 'privacy'];
   function route() {
     const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
     document.body.dataset.view = v;
     $('#view-home').hidden = v !== 'home';
     $('#tab-organize').hidden = v !== 'organize';
     $('#tab-convert').hidden = v !== 'convert';
+    $('#view-privacy').hidden = v !== 'privacy';
     document.querySelectorAll('.tab').forEach(t => {
       const on = t.dataset.tab === v;
       t.classList.toggle('active', on);
       if (t.getAttribute('role') === 'tab') t.setAttribute('aria-selected', on);
       if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
     });
-    document.title = v === 'organize' ? '自動整理｜檔案整理轉檔' : v === 'convert' ? '轉檔｜檔案整理轉檔' : '檔案整理轉檔';
+    document.title = { organize: '自動整理｜檔案整理轉檔', convert: '轉檔｜檔案整理轉檔', privacy: '隱私政策｜檔案整理轉檔' }[v] || '檔案整理轉檔';
     window.scrollTo(0, 0);
     document.dispatchEvent(new CustomEvent('viewchange', { detail: v }));
   }

@@ -21,12 +21,16 @@
   };
 
   const STEPS = {
+    privacy: [
+      { art: 'privacy', title: '隱私政策', text: '這頁說明我會讀取哪些資訊、不會做哪些事。重點只有一個：你的檔案不會上傳。' },
+      { art: 'hello', title: '有問題嗎？', text: '想自己確認的話，看第 7 點，教你斷網使用或查看網路紀錄。' },
+    ],
     home: [
       { art: 'hello', title: '嗨！我是檔案整理小助手', text: '這裡是入口。選一個工具，我就帶你過去！' },
       { art: 'layers', title: '自動整理', text: '一大堆照片、文件，依名字、類型、日期自動分好資料夾。', target: '#go-organize' },
       { art: 'convert', title: '轉檔', text: '圖片換格式、縮小、合併成 PDF，或是 Excel 和 CSV 互轉。', target: '#go-convert' },
       { art: 'drop', title: '趕時間的話', text: '直接把檔案拖到這個框框，我會自動打開「自動整理」。', target: '#home-drop' },
-      { art: 'privacy', title: '放心，不會上傳', text: '所有處理都在你的裝置上完成。想回到這裡，點左上角的標題就可以。' },
+      { art: 'privacy', title: '放心，不會上傳', text: '所有處理都在你的裝置上完成，詳細說明在頁尾的「隱私政策」。想回到這裡，點左上角的標題就可以。' },
     ],
     organize: [
       { art: 'hello', title: '嗨！我是檔案整理小助手', text: '我來教你怎麼把一大堆檔案自動分好資料夾，只要 5 步就好！' },
@@ -86,7 +90,7 @@
   }
 
   function open() {
-    steps = STEPS[currentTab()];
+    steps = STEPS[currentTab()] || STEPS.home;
     bubble.hidden = false;
     bot.setAttribute('aria-expanded', 'true');
     document.body.classList.add('guide-open');
