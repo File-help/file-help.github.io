@@ -1,6 +1,7 @@
 /* 介面邏輯 */
 (function () {
   'use strict';
+  if (!document.documentElement.lang) document.documentElement.lang = 'zh-Hant';
 
   const $ = sel => document.querySelector(sel);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -23,13 +24,52 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
   }
-  function download(blob, name) {
+  /* 在 claude.ai 上開啟時，用平台的「下載」功能（會先跳出確認）；在一般瀏覽器或本機開啟時，直接下載。 */
+  const hosted = !!(window.claude && typeof window.claude.use === 'function');
+  const dlCap = hosted ? window.claude.use('downloads').catch(() => null) : Promise.resolve(null);
+  async function download(blob, name) {
+    if (hosted) {
+      const d = await dlCap;
+      if (!d) { notify('這個畫面無法儲存檔案。請在瀏覽器開啟這個網站，或下載整個網站在電腦上使用。'); return false; }
+      try {
+        await d.save({ filename: name, data: blob });
+        return true;
+      } catch (e) {
+        const code = e && e.code;
+        if (code === 'declined') toast('已取消儲存');
+        else if (code === 'rate_limited') toast('已經有一個儲存視窗開著，請先處理它');
+        else if (code === 'too_large') notify('檔案太大，無法在這裡儲存。請分批處理。');
+        else if (code === 'rejected_extension') notify('這種檔案格式無法在這裡儲存：' + name);
+        else notify('無法儲存檔案（' + (code || '未知原因') + '）。請在瀏覽器開啟這個網站再試一次。');
+        return false;
+      }
+    }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = name;
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
+    return true;
   }
+
+  /* 頁面內的對話框（取代 alert / confirm，嵌入其他網站時也能用） */
+  function dialog(msg, withCancel, okText) {
+    return new Promise(resolve => {
+      const box = $('#dialog');
+      $('#dialog-text').textContent = msg;
+      $('#dialog-ok').textContent = okText || '好';
+      $('#dialog-cancel').hidden = !withCancel;
+      box.hidden = false;
+      $('#dialog-ok').focus();
+      const done = v => { box.hidden = true; $('#dialog-ok').onclick = $('#dialog-cancel').onclick = null; document.removeEventListener('keydown', onKey); resolve(v); };
+      const onKey = e => { if (e.key === 'Escape') done(false); };
+      document.addEventListener('keydown', onKey);
+      $('#dialog-ok').onclick = () => done(true);
+      $('#dialog-cancel').onclick = () => done(false);
+    });
+  }
+  const ask = (msg, okText) => dialog(msg, true, okText);
+  const notify = msg => dialog(msg, false);
   const stamp = () => { const d = new Date(); return fmtDate(d).replace(/-/g, '') + '-' + String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0'); };
 
   /* ---------- 共用：拖曳讀取（含資料夾） ---------- */
@@ -118,7 +158,7 @@
     }
     progress(null);
     $('#org-main').hidden = false;
-    $('#btn-folder').hidden = !window.showDirectoryPicker;
+    $('#btn-folder').hidden = hosted || !window.showDirectoryPicker;
     refreshSuggestions();
     render();
     toast(`已加入 ${list.length} 個檔案`);
@@ -228,8 +268,8 @@
   setupDrop($('#home-drop'), list => { location.hash = '#organize'; addOrgFiles(list); });
   $('#home-files').addEventListener('change', e => { const list = [...e.target.files].map(f => ({ file: f, relPath: f.name })); e.target.value = ''; location.hash = '#organize'; addOrgFiles(list); });
 
-  $('#btn-clear').addEventListener('click', () => {
-    if (!confirm('確定要清除所有檔案嗎？（不會刪除你電腦裡的檔案）')) return;
+  $('#btn-clear').addEventListener('click', async () => {
+    if (!await ask('確定要清除清單上所有檔案嗎？（不會刪除你電腦裡的檔案）', '清除')) return;
     org.items = []; org.keys.clear(); org.planned = []; rowLimit = ROW_LIMIT;
     $('#org-main').hidden = true;
   });
@@ -255,7 +295,7 @@
     const plan = Organizer.plan(org.items, settings(), names());
     if (!plan.length) return;
     const total = plan.reduce((s, p) => s + p.item.file.size, 0);
-    if (total > 1.8 * 1073741824 && !confirm(`檔案總共 ${fmtSize(total)}，ZIP 太大可能失敗。\n建議改用「直接存到電腦資料夾」，或分批處理。\n\n仍要繼續嗎？`)) return;
+    if (total > 1.8 * 1073741824 && !await ask(`檔案總共 ${fmtSize(total)}，ZIP 太大可能失敗。建議改用「直接存到電腦資料夾」，或分批處理。仍要繼續嗎？`, '繼續')) return;
     try {
       const zip = new JSZip();
       let i = 0;
@@ -268,12 +308,11 @@
       }
       const out = await zip.generateAsync({ type: 'blob', streamFiles: true }, m => progress(`壓縮中… ${Math.round(m.percent)}%`, m.percent / 100));
       progress(null);
-      download(out, `整理好的檔案_${stamp()}.zip`);
       const failed = plan.filter(p => p.failed).length;
-      toast(failed ? `完成！但有 ${failed} 個 HEIC 無法轉檔，已保留原檔` : '完成！ZIP 已開始下載');
+      if (await download(out, `整理好的檔案_${stamp()}.zip`)) toast(failed ? `完成！但有 ${failed} 個 HEIC 無法轉檔，已保留原檔` : '完成！ZIP 已儲存');
     } catch (e) {
       progress(null);
-      alert('打包失敗：' + e.message + '\n檔案可能太大，請分批處理。');
+      notify('打包失敗：' + e.message + '。檔案可能太大，請分批處理。');
     }
   });
 
@@ -314,7 +353,7 @@
       toast(`完成！已存入「${root.name}」資料夾`);
     } catch (e) {
       progress(null);
-      alert('儲存失敗：' + e.message);
+      notify('儲存失敗：' + e.message);
     }
   });
 
@@ -335,7 +374,7 @@
     document.querySelectorAll('.opt').forEach(el => { el.hidden = el.dataset.op !== o; });
     $('#conv-files').accept = ACCEPT[o];
     conv.results = [];
-    conv.files.forEach(f => { f.status = ''; f.links = null; });
+    conv.files.forEach(f => { f.status = ''; f.results = null; });
     renderConv();
   }
   document.querySelectorAll('input[name=op]').forEach(r => r.addEventListener('change', onOpChange));
@@ -353,7 +392,7 @@
     const o = op();
     $('#conv-list').innerHTML = conv.files.map((f, i) => {
       const ok = supports(f.file, o);
-      const links = (f.links || []).map(l => `<a href="${l.url}" download="${esc(l.name)}">⬇ ${esc(l.name)}</a>`).join(' ');
+      const links = (f.results || []).map((r, j) => `<button class="dl" data-act="dl" data-i="${i}" data-j="${j}">⬇ ${esc(r.name)}</button>`).join(' ');
       const move = o === 'pdf' ? `<button class="btn tiny" data-act="up" data-i="${i}" aria-label="上移">↑</button><button class="btn tiny" data-act="down" data-i="${i}" aria-label="下移">↓</button>` : '';
       return `<li class="${ok ? '' : 'skip'}">${move}<span class="nm" title="${esc(f.file.name)}">${esc(f.file.name)}</span>
         <span class="st ${f.cls || ''}">${ok ? esc(f.status || fmtSize(f.file.size)) : '此功能不支援'}</span>${links}
@@ -366,6 +405,7 @@
     const b = e.target.closest('button[data-act]');
     if (!b) return;
     const i = +b.dataset.i;
+    if (b.dataset.act === 'dl') { const r = conv.files[i].results[+b.dataset.j]; download(r.blob, r.name); return; }
     if (b.dataset.act === 'del') conv.files.splice(i, 1);
     if (b.dataset.act === 'up' && i > 0) [conv.files[i - 1], conv.files[i]] = [conv.files[i], conv.files[i - 1]];
     if (b.dataset.act === 'down' && i < conv.files.length - 1) [conv.files[i + 1], conv.files[i]] = [conv.files[i], conv.files[i + 1]];
@@ -375,20 +415,19 @@
   $('#conv-files').addEventListener('change', e => { addConvFiles([...e.target.files].map(f => ({ file: f }))); e.target.value = ''; });
   setupDrop($('#conv-drop'), addConvFiles);
   $('#btn-conv-clear').addEventListener('click', () => {
-    conv.files.forEach(f => (f.links || []).forEach(l => URL.revokeObjectURL(l.url)));
     conv.files = []; conv.results = [];
     renderConv();
   });
 
   function attach(f, results) {
-    f.links = results.map(r => ({ name: r.name, url: URL.createObjectURL(r.blob) }));
+    f.results = results;
     conv.results.push(...results);
   }
 
   $('#btn-convert').addEventListener('click', async () => {
     const o = op();
     const targets = conv.files.filter(f => supports(f.file, o));
-    conv.files.forEach(f => { (f.links || []).forEach(l => URL.revokeObjectURL(l.url)); f.links = null; f.status = ''; f.cls = ''; });
+    conv.files.forEach(f => { f.results = null; f.status = ''; f.cls = ''; });
     conv.results = [];
     try {
       if (o === 'pdf') {
@@ -432,7 +471,7 @@
       toast(`完成 ${ok} / ${targets.length} 個檔案` + (conv.results.length > 1 ? '，可個別下載或全部打包' : ''));
     } catch (e) {
       progress(null);
-      alert('轉換失敗：' + e.message);
+      notify('轉換失敗：' + e.message);
     }
   });
 
