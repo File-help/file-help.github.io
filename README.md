@@ -2,9 +2,9 @@
 
 ## 🚀 打開工具
 
-**👉 [開始使用：檔案整理轉檔](https://file-helper.github.io/)**
+**👉 [開始使用：檔案整理轉檔](https://file-help.github.io/)**
 
-直接打開某個功能：[🗂️ 自動整理](https://file-helper.github.io/#organize)・[🔄 轉檔](https://file-helper.github.io/#convert)・[🔒 隱私政策](https://file-helper.github.io/#privacy)
+直接打開某個功能：[🗂️ 自動整理](https://file-help.github.io/#organize)・[🔄 轉檔](https://file-help.github.io/#convert)・[🔒 隱私政策](https://file-help.github.io/#privacy)
 
 > 也可以不用網路：下載這個 repo，直接雙擊 `index.html` 開啟。
 
@@ -58,8 +58,8 @@
 ## 使用方式
 
 - **直接開啟**：下載整個專案，雙擊 `index.html` 即可（不需安裝、不需網路）。
-- **網址**：<https://file-helper.github.io/>（GitHub Pages，由 `file-helper` 組織代管）
-  設定方式：repo 名稱為 `file-helper.github.io`，Settings → Pages → Source 選 `Deploy from a branch`，分支選 `claude/auto-file-organize-convert-iixmmc`、資料夾 `/ (root)`，按 Save。
+- **網址**：<https://file-help.github.io/>（GitHub Pages，由 `File-help` 組織代管）
+  設定方式：repo 名稱為 `file-help.github.io`，Settings → Pages → Source 選 `Deploy from a branch`，分支選 `claude/auto-file-organize-convert-iixmmc`、資料夾 `/ (root)`，按 Save。
 
 ## 限制
 
