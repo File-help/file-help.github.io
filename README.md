@@ -1,5 +1,13 @@
 # 📁 檔案整理轉檔
 
+## 🚀 打開工具
+
+**👉 [開始使用：檔案整理轉檔](https://claude.ai/artifact/YW4wNm8DU9FWprPkR4wKmM)**
+
+直接打開某個功能：[🗂️ 自動整理](https://claude.ai/artifact/YW4wNm8DU9FWprPkR4wKmM#organize)・[🔄 轉檔](https://claude.ai/artifact/YW4wNm8DU9FWprPkR4wKmM#convert)・[🔒 隱私政策](https://claude.ai/artifact/YW4wNm8DU9FWprPkR4wKmM#privacy)
+
+> 也可以不用網路：下載這個 repo，直接雙擊 `index.html` 開啟。
+
 把一大堆照片、文件丟進網頁，自動分好資料夾；也能用圖形介面簡單轉檔。
 
 **🔒 隱私優先：所有處理都在你的瀏覽器裡完成，檔案不會上傳。** 網頁設定了安全規則，禁止連到任何外部網址，斷網也能用。
