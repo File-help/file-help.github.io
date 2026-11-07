@@ -12,7 +12,7 @@
 <body>
   <header class="top">
     <div class="wrap">
-      <h1>📁 檔案整理轉檔</h1>
+      <h1><span class="logo" aria-hidden="true">🗂️</span> 檔案整理轉檔</h1>
       <p class="privacy">🔒 所有處理都在你的裝置上完成，檔案<strong>不會上傳</strong>到任何地方。斷網也能用。</p>
       <nav class="tabs" role="tablist">
         <button class="tab active" role="tab" aria-selected="true" data-tab="organize">🗂️ 自動整理</button>
@@ -25,7 +25,7 @@
     <!-- ================= 自動整理 ================= -->
     <section id="tab-organize" class="panel" role="tabpanel">
       <div class="drop" id="org-drop" tabindex="0">
-        <div class="drop-icon">⬇️</div>
+        <div class="drop-icon" aria-hidden="true"><span>📷</span><span>📄</span><span>🎵</span></div>
         <p class="drop-title">把照片、文件、整個資料夾拖到這裡</p>
         <p class="muted">或</p>
         <div class="btn-row">
@@ -36,7 +36,7 @@
 
       <div id="org-main" hidden>
         <div class="grid">
-          <div class="card">
+          <div class="card" id="rules-card">
             <h2>1. 分類規則</h2>
             <p class="muted small">依序：<b>名字</b> → <b>類型</b> → <b>日期</b>，取消勾選就略過那一層。</p>
 
@@ -67,14 +67,14 @@
             <label class="check"><input type="checkbox" id="heic-jpg"> iPhone 照片（HEIC）順便轉成 JPG</label>
           </div>
 
-          <div class="card">
+          <div class="card" id="preview-card">
             <h2>2. 預覽結果</h2>
             <div id="summary" class="summary"></div>
             <div id="tree" class="tree"></div>
           </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="list-card">
           <div class="row-between">
             <h2>3. 檔案清單 <span class="muted small">（可以直接修改要放的資料夾）</span></h2>
             <input type="search" id="filter" placeholder="搜尋檔名…" aria-label="搜尋檔名">
@@ -98,7 +98,7 @@
 
     <!-- ================= 轉檔 ================= -->
     <section id="tab-convert" class="panel" role="tabpanel" hidden>
-      <div class="card">
+      <div class="card" id="ops-card">
         <h2>1. 想做什麼？</h2>
         <div class="ops" role="radiogroup">
           <label class="op"><input type="radio" name="op" value="image" checked><span><b>🖼️ 圖片轉格式／壓縮</b><small>JPG、PNG、WebP、HEIC → JPG，縮小尺寸</small></span></label>
@@ -107,7 +107,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="settings-card">
         <h2>2. 設定</h2>
         <div class="opt" data-op="image">
           <label>轉成：
@@ -159,7 +159,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="files-card">
         <h2>3. 選擇檔案</h2>
         <div class="drop small-drop" id="conv-drop" tabindex="0">
           <p class="drop-title">拖曳檔案到這裡</p>
@@ -183,6 +183,40 @@
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+  <!-- 小幫手機器人：只有點擊時才會說明 -->
+  <div id="guide" class="guide">
+    <div id="guide-bubble" class="guide-bubble" role="dialog" aria-modal="false" aria-labelledby="guide-title" hidden>
+      <button class="guide-x" id="guide-close" aria-label="關閉說明">✕</button>
+      <div class="guide-art" id="guide-art" aria-hidden="true"></div>
+      <h3 id="guide-title"></h3>
+      <p id="guide-text"></p>
+      <div class="guide-nav">
+        <div class="guide-dots" id="guide-dots"></div>
+        <div class="guide-btns">
+          <button class="btn tiny ghost" id="guide-prev">上一步</button>
+          <button class="btn tiny primary" id="guide-next">下一步</button>
+        </div>
+      </div>
+    </div>
+    <button id="guide-bot" class="guide-bot" aria-label="使用教學：點我看怎麼用" aria-expanded="false" aria-controls="guide-bubble">
+      <span class="bot-tip" aria-hidden="true">點我教你用！</span>
+      <svg viewBox="0 0 100 112" aria-hidden="true">
+        <line x1="50" y1="9" x2="50" y2="22" stroke="#8b7cf6" stroke-width="4" stroke-linecap="round"/>
+        <circle class="bot-bulb" cx="50" cy="9" r="6.5" fill="#ff8fb1"/>
+        <rect x="5" y="40" width="11" height="20" rx="5.5" fill="#c4bbff"/>
+        <rect x="84" y="40" width="11" height="20" rx="5.5" fill="#c4bbff"/>
+        <rect x="13" y="21" width="74" height="58" rx="26" fill="#ffffff" stroke="#8b7cf6" stroke-width="4"/>
+        <rect x="23" y="33" width="54" height="34" rx="15" fill="#2e2a4f"/>
+        <g class="bot-eyes"><ellipse cx="39" cy="48" rx="5.5" ry="6.5" fill="#7ff0d0"/><ellipse cx="61" cy="48" rx="5.5" ry="6.5" fill="#7ff0d0"/></g>
+        <path class="bot-mouth" d="M44 58 Q50 63 56 58" stroke="#7ff0d0" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="20" cy="66" r="4.5" fill="#ffc2d4"/>
+        <circle cx="80" cy="66" r="4.5" fill="#ffc2d4"/>
+        <rect x="30" y="81" width="40" height="27" rx="13" fill="#c4bbff"/>
+        <path d="M50 101 l-6 -6 a3.6 3.6 0 0 1 6 -4 a3.6 3.6 0 0 1 6 4 z" fill="#ff8fb1"/>
+      </svg>
+    </button>
+  </div>
+
   <footer class="wrap small muted">不需註冊、不收集資料。可以把整個網站下載下來離線使用。</footer>
 
   <script src="vendor/jszip.min.js"></script>
@@ -190,5 +224,6 @@
   <script src="js/table.js"></script>
   <script src="js/converter.js"></script>
   <script src="js/app.js"></script>
+  <script src="js/guide.js"></script>
 </body>
 </html>

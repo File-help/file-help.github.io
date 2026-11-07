@@ -37,6 +37,9 @@
 
 轉出來的圖片會自動移除 GPS 位置等 EXIF 資訊。
 
+### 🤖 小幫手「小整」
+右下角的小機器人，**點一下才會出現**圖解教學：每一步都有小動畫，並會把畫面上對應的區塊框起來。切換到「轉檔」分頁時會換成轉檔教學。按 Esc 或 ✕ 關閉。
+
 ## 使用方式
 
 - **直接開啟**：下載整個專案，雙擊 `index.html` 即可（不需安裝、不需網路）。
@@ -54,10 +57,11 @@
 
 ```
 index.html          頁面
-css/style.css       樣式（支援深色模式、手機版）
+css/style.css       樣式（可愛圓角風格，支援深色模式、手機版）
 js/organizer.js     分類邏輯（名字、類型、EXIF 日期）
 js/converter.js     圖片、HEIC、PDF 轉檔
 js/table.js         CSV / XLSX / JSON 讀寫
 js/app.js           介面
+js/guide.js         小幫手機器人教學
 vendor/             JSZip（ZIP 讀寫）、heic2any（HEIC 解碼），皆為 MIT 授權
 ```
