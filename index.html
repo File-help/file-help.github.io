@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 隱私保護：禁止網頁連到任何外部網址，檔案不可能被上傳 -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self'; img-src 'self' blob: data:; worker-src 'self' blob:; connect-src blob: data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <title>檔案整理轉檔</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1>📁 檔案整理轉檔</h1>
+      <p class="privacy">🔒 所有處理都在你的裝置上完成，檔案<strong>不會上傳</strong>到任何地方。斷網也能用。</p>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" role="tab" aria-selected="true" data-tab="organize">🗂️ 自動整理</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="convert">🔄 轉檔</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- ================= 自動整理 ================= -->
+    <section id="tab-organize" class="panel" role="tabpanel">
+      <div class="drop" id="org-drop" tabindex="0">
+        <div class="drop-icon">⬇️</div>
+        <p class="drop-title">把照片、文件、整個資料夾拖到這裡</p>
+        <p class="muted">或</p>
+        <div class="btn-row">
+          <label class="btn">選擇檔案<input type="file" id="org-files" multiple hidden></label>
+          <label class="btn" id="org-folder-label">選擇資料夾<input type="file" id="org-folder" webkitdirectory multiple hidden></label>
+        </div>
+      </div>
+
+      <div id="org-main" hidden>
+        <div class="grid">
+          <div class="card">
+            <h2>1. 分類規則</h2>
+            <p class="muted small">依序：<b>名字</b> → <b>類型</b> → <b>日期</b>，取消勾選就略過那一層。</p>
+
+            <label class="check"><input type="checkbox" id="use-name" checked> 依<b>名字</b>分類</label>
+            <div class="indent" id="name-block">
+              <label for="names" class="small">名字（一行一個，或用逗號分隔）：</label>
+              <textarea id="names" rows="3" placeholder="例如：&#10;王小明&#10;陳美玲&#10;Amy"></textarea>
+              <label class="check small"><input type="checkbox" id="match-folder" checked> 也比對原本的資料夾名稱</label>
+              <div id="suggest-wrap" hidden>
+                <p class="small muted">檔名裡常出現的詞，點一下加入：</p>
+                <div id="suggest" class="chips"></div>
+              </div>
+            </div>
+
+            <label class="check"><input type="checkbox" id="use-type" checked> 依<b>類型</b>分類（照片、影片、文件…）</label>
+
+            <label class="check"><input type="checkbox" id="use-date" checked> 依<b>日期</b>分類</label>
+            <div class="indent">
+              <select id="date-fmt" aria-label="日期資料夾格式">
+                <option value="Y">年（2025）</option>
+                <option value="YM" selected>年-月（2025-08）</option>
+                <option value="Y/M">年 / 月 兩層（2025/08月）</option>
+                <option value="YMD">年-月-日（2025-08-12）</option>
+              </select>
+              <p class="small muted">照片優先用拍攝日期，其次是檔名中的日期，最後用檔案修改日期。</p>
+            </div>
+
+            <label class="check"><input type="checkbox" id="heic-jpg"> iPhone 照片（HEIC）順便轉成 JPG</label>
+          </div>
+
+          <div class="card">
+            <h2>2. 預覽結果</h2>
+            <div id="summary" class="summary"></div>
+            <div id="tree" class="tree"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="row-between">
+            <h2>3. 檔案清單 <span class="muted small">（可以直接修改要放的資料夾）</span></h2>
+            <input type="search" id="filter" placeholder="搜尋檔名…" aria-label="搜尋檔名">
+          </div>
+          <div class="table-wrap">
+            <table class="files">
+              <thead><tr><th>原始檔案</th><th>類型</th><th>日期</th><th>放到資料夾</th></tr></thead>
+              <tbody id="file-rows"></tbody>
+            </table>
+          </div>
+          <p id="more-rows" class="small muted" hidden></p>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="btn-zip">📦 下載整理好的 ZIP</button>
+          <button class="btn" id="btn-folder" hidden>💾 直接存到電腦資料夾</button>
+          <button class="btn ghost" id="btn-clear">清除全部</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 轉檔 ================= -->
+    <section id="tab-convert" class="panel" role="tabpanel" hidden>
+      <div class="card">
+        <h2>1. 想做什麼？</h2>
+        <div class="ops" role="radiogroup">
+          <label class="op"><input type="radio" name="op" value="image" checked><span><b>🖼️ 圖片轉格式／壓縮</b><small>JPG、PNG、WebP、HEIC → JPG，縮小尺寸</small></span></label>
+          <label class="op"><input type="radio" name="op" value="pdf"><span><b>📄 圖片合併成 PDF</b><small>多張照片或掃描檔變成一份 PDF</small></span></label>
+          <label class="op"><input type="radio" name="op" value="table"><span><b>📊 表格轉換</b><small>Excel（XLSX）、CSV、JSON 互轉</small></span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. 設定</h2>
+        <div class="opt" data-op="image">
+          <label>轉成：
+            <select id="img-format">
+              <option value="image/jpeg">JPG（照片最通用）</option>
+              <option value="image/png">PNG（不失真、可透明）</option>
+              <option value="image/webp">WebP（檔案最小）</option>
+            </select>
+          </label>
+          <label>畫質：<input type="range" id="img-quality" min="40" max="100" value="85"> <output id="img-quality-out">85</output>%</label>
+          <label>最大尺寸：
+            <select id="img-size">
+              <option value="0">維持原尺寸</option>
+              <option value="3840">3840 px（4K）</option>
+              <option value="2560">2560 px</option>
+              <option value="1920" selected>1920 px（適合分享）</option>
+              <option value="1280">1280 px</option>
+              <option value="800">800 px（小圖）</option>
+            </select>
+          </label>
+          <p class="small muted">轉檔後會自動移除 GPS 位置等個人資訊。</p>
+        </div>
+        <div class="opt" data-op="pdf" hidden>
+          <label>頁面大小：
+            <select id="pdf-size">
+              <option value="a4">A4（自動直／橫）</option>
+              <option value="fit">跟圖片一樣大</option>
+            </select>
+          </label>
+          <label>邊界：
+            <select id="pdf-margin">
+              <option value="0">無</option>
+              <option value="20" selected>小</option>
+              <option value="40">中</option>
+            </select>
+          </label>
+          <label>檔名：<input type="text" id="pdf-name" value="合併文件"></label>
+          <p class="small muted">頁面順序就是下方清單的順序，可以用 ↑ ↓ 調整。</p>
+        </div>
+        <div class="opt" data-op="table" hidden>
+          <label>轉成：
+            <select id="table-format">
+              <option value="xlsx">Excel（XLSX）</option>
+              <option value="csv">CSV</option>
+              <option value="json">JSON</option>
+            </select>
+          </label>
+          <p class="small muted">Big5 編碼的舊 CSV 也能自動辨識。輸出的 CSV 用 Excel 開啟中文不會亂碼。</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>3. 選擇檔案</h2>
+        <div class="drop small-drop" id="conv-drop" tabindex="0">
+          <p class="drop-title">拖曳檔案到這裡</p>
+          <label class="btn">選擇檔案<input type="file" id="conv-files" multiple hidden></label>
+        </div>
+        <ul id="conv-list" class="conv-list"></ul>
+        <div class="actions">
+          <button class="btn primary" id="btn-convert" disabled>開始轉換</button>
+          <button class="btn" id="btn-conv-zip" hidden>📦 全部下載（ZIP）</button>
+          <button class="btn ghost" id="btn-conv-clear">清除</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="progress" class="progress" hidden>
+    <div class="progress-box">
+      <p id="progress-text">處理中…</p>
+      <div class="bar"><div id="progress-bar"></div></div>
+    </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <footer class="wrap small muted">不需註冊、不收集資料。可以把整個網站下載下來離線使用。</footer>
+
+  <script src="vendor/jszip.min.js"></script>
+  <script src="js/organizer.js"></script>
+  <script src="js/table.js"></script>
+  <script src="js/converter.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
